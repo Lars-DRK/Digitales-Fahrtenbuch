@@ -21,32 +21,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <style>
+        /* NEUES DESIGN: Heller, flacher Hintergrund */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f3f4f6;
-            background-image: url('https://www.drk.de/fileadmin/DRK-Layout/Logos/DRK-Kompaktlogo-RGB.svg');
-            background-size: 80%;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+            background-color: #f3f4f6; /* Helles Grau */
             position: relative;
         }
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(243, 244, 246, 0.85);
-            z-index: -1;
-        }
+
         .hidden-print { display: none !important; }
         @media print {
             .no-print { display: none !important; }
             .hidden-print { display: block !important; }
-            body { background-color: white; background-image: none; }
-            body::before { display: none; }
+            body { background-color: white; }
         }
         #loader { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 50; display: flex; justify-content: center; align-items: center; }
-        .log-table th { font-size: 0.75rem; vertical-align: top; background-color: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; padding: 4px; }
+        
+        .log-table th { font-size: 0.75rem; vertical-align: top; background-color: #e5e7eb; color: black; border: 1px solid #d1d5db; padding: 4px; font-weight: bold; }
         .log-table td { font-size: 0.8rem; border: 1px solid #e5e7eb; padding: 4px; vertical-align: middle; }
     </style>
 </head>
@@ -54,8 +44,8 @@
 
     <div id="loader"><div class="text-xl font-bold text-red-600"><i class="fa-solid fa-circle-notch fa-spin"></i> Lade Daten...</div></div>
 
-    <nav class="bg-red-700 text-white shadow-lg no-print relative z-10">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+    <nav class="bg-red-700 shadow-lg no-print relative z-10">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center text-white">
             <div class="flex items-center space-x-2">
                 <i class="fa-solid fa-truck-medical text-2xl"></i>
                 <h1 class="text-xl font-bold">DRK Fahrtenbuch</h1>
@@ -71,501 +61,33 @@
     <div class="container mx-auto px-2 py-6 relative z-10">
         
         <div id="logbook-section" class="space-y-6">
-            <div class="bg-white/90 p-4 rounded-lg shadow-md border-t-4 border-red-600 no-print backdrop-blur-sm">
-                <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-pen-to-square"></i> Neue Fahrt</h2>
+            <div class="bg-white p-4 rounded-lg shadow-md border-t-4 border-red-600 no-print">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-red-600"></i> Neue Fahrt</h2>
                 <form id="entryForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3">
                     <div class="lg:col-span-4">
-                        <label class="block text-xs font-bold text-gray-500 uppercase">Fahrzeug</label>
+                        <label class="block text-xs font-bold text-gray-700 uppercase">Fahrzeug</label>
                         <select id="vehicleSelect" class="w-full mt-1 p-2 border rounded bg-gray-50" onchange="updateStartKm()"></select>
                     </div>
                     <div class="lg:col-span-4">
-                        <label class="block text-xs font-bold text-gray-500 uppercase">Fahrer</label>
+                        <label class="block text-xs font-bold text-gray-700 uppercase">Fahrer</label>
                         <input type="text" id="driver" class="w-full mt-1 p-2 border rounded" placeholder="Name" required>
                     </div>
                     <div class="lg:col-span-2">
-                        <label class="block text-xs font-bold text-gray-500 uppercase">Datum</label>
+                        <label class="block text-xs font-bold text-gray-700 uppercase">Datum</label>
                         <input type="date" id="date" class="w-full mt-1 p-2 border rounded" onchange="updateStartKm()" required>
                     </div>
 
                     <div class="lg:col-span-6">
-                        <label class="block text-xs font-bold text-gray-500 uppercase">Fahrtzweck</label>
+                        <label class="block text-xs font-bold text-gray-700 uppercase">Fahrtzweck</label>
                         <input type="text" id="purpose" class="w-full mt-1 p-2 border rounded" placeholder="z.B. Einsatz" required>
                     </div>
                     <div class="lg:col-span-6">
-                        <label class="block text-xs font-bold text-gray-500 uppercase">Fahrstrecke</label>
+                        <label class="block text-xs font-bold text-gray-700 uppercase">Fahrstrecke</label>
                         <input type="text" id="route" class="w-full mt-1 p-2 border rounded" placeholder="Von - Nach" required>
                     </div>
 
-                    <div class="lg:col-span-6 bg-blue-50/90 p-2 rounded border border-blue-100">
-                        <span class="text-xs font-bold text-blue-800 uppercase block mb-1">Beginn der Fahrt</span>
+                    <div class="lg:col-span-6 bg-blue-50 p-2 rounded border border-blue-200">
+                        <span class="text-xs font-bold text-black uppercase block mb-1">Beginn der Fahrt</span>
                         <div class="flex gap-2">
                             <div class="flex-1">
-                                <label class="text-[10px] text-gray-500">Uhrzeit</label>
-                                <input type="time" id="startTime" class="w-full p-1 border rounded bg-white" required>
-                            </div>
-                            <div class="flex-1">
-                                <label class="text-[10px] text-gray-500">KM-Stand</label>
-                                <input type="number" id="startKm" class="w-full p-1 border rounded transition-colors" step="0.1">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-6 bg-green-50/90 p-2 rounded border border-green-100">
-                        <span class="text-xs font-bold text-green-800 uppercase block mb-1">Ende der Fahrt</span>
-                        <div class="flex gap-2">
-                            <div class="flex-1">
-                                <label class="text-[10px] text-gray-500">Uhrzeit</label>
-                                <input type="time" id="endTime" class="w-full p-1 border rounded bg-white" required>
-                            </div>
-                            <div class="flex-1">
-                                <label class="text-[10px] text-gray-500">KM-Stand</label>
-                                <input type="number" id="endKm" class="w-full p-1 border rounded bg-white" oninput="calcDist()" step="0.1" required>
-                            </div>
-                        </div>
-                        <div class="mt-1 text-right">
-                            <span class="text-xs text-green-700">Gefahren: </span>
-                            <span id="distanceDisplay" class="font-bold text-lg">0</span> km
-                            <input type="hidden" id="distance">
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-2">
-                        <label class="block text-xs font-bold text-gray-500 uppercase">Treibstoff</label>
-                        <input type="text" id="fuel" class="w-full mt-1 p-2 border rounded" placeholder="Liter">
-                    </div>
-                    <div class="lg:col-span-2">
-                        <label class="block text-xs font-bold text-gray-500 uppercase">Öl</label>
-                        <input type="text" id="oil" class="w-full mt-1 p-2 border rounded" placeholder="Liter">
-                    </div>
-                    <div class="lg:col-span-8">
-                        <label class="block text-xs font-bold text-gray-500 uppercase">Bemerkungen</label>
-                        <input type="text" id="remarks" class="w-full mt-1 p-2 border rounded">
-                    </div>
-
-                    <div class="lg:col-span-12 flex justify-between items-center mt-2 pt-2 border-t">
-                        <div id="syncStatus" class="text-xs text-gray-400 italic">Bereit</div>
-                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-8 rounded shadow flex items-center gap-2">
-                            <i class="fa-solid fa-save"></i> Speichern
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="bg-white/90 p-3 rounded-lg shadow-sm flex flex-wrap gap-3 items-end no-print backdrop-blur-sm">
-                <div class="flex-1 min-w-[200px]">
-                    <label class="block text-[10px] uppercase font-bold text-gray-400">Suche</label>
-                    <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Name oder Zweck..." class="w-full p-2 border rounded text-sm">
-                </div>
-                <div class="w-32">
-                    <label class="block text-[10px] uppercase font-bold text-gray-400">Jahr</label>
-                    <select id="filterYear" onchange="renderTable()" class="w-full p-2 border rounded text-sm">
-                        <option value="2025">2025</option>
-                        <option value="2026" selected>2026</option>
-                        <option value="2027">2027</option>
-                    </select>
-                </div>
-                <div class="w-48">
-                    <label class="block text-[10px] uppercase font-bold text-gray-400">Fahrzeug</label>
-                    <select id="filterVehicle" onchange="renderTable()" class="w-full p-2 border rounded text-sm"><option value="all">Alle KFZ</option></select>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="downloadPdf()" class="bg-red-800 text-white px-3 py-2 rounded text-sm hover:bg-red-900 shadow">
-                        <i class="fa-solid fa-file-pdf"></i> PDF
-                    </button>
-                    <button onclick="window.print()" class="bg-gray-700 text-white px-3 py-2 rounded text-sm hover:bg-gray-800">
-                        <i class="fa-solid fa-print"></i> Drucken
-                    </button>
-                </div>
-            </div>
-
-            <div class="bg-white shadow-md rounded-lg overflow-x-auto">
-                <table class="w-full min-w-[900px] border-collapse log-table">
-                    <thead>
-                        <tr>
-                            <th class="w-16">Datum</th>
-                            <th class="w-32">Zweck</th>
-                            <th class="w-32">Strecke</th>
-                            <th class="w-20">Start Uhr</th>
-                            <th class="w-20">Start KM</th>
-                            <th class="w-20">Ende Uhr</th>
-                            <th class="w-20">Ende KM</th>
-                            <th class="w-16">Gef.</th>
-                            <th class="w-12">Sprit</th>
-                            <th class="w-12">Öl</th>
-                            <th class="w-24">Fahrer</th>
-                            <th class="w-32">Info</th>
-                            <th class="no-print w-16">Aktion</th>
-                        </tr>
-                    </thead>
-                    <tbody id="logTableBody" class="text-sm bg-white"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div id="stats-section" class="hidden space-y-6">
-            <h2 class="text-2xl font-bold text-white drop-shadow-md">Statistik</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white/90 p-4 rounded shadow backdrop-blur-sm"><canvas id="chartVehicles"></canvas></div>
-                <div class="bg-white/90 p-4 rounded shadow backdrop-blur-sm"><canvas id="chartMonths"></canvas></div>
-            </div>
-        </div>
-
-        <div id="vehicles-section" class="hidden space-y-6">
-            <h2 class="text-2xl font-bold text-white drop-shadow-md">Fahrzeuge & QR Codes</h2>
-            <div class="bg-white/90 p-6 rounded shadow border-l-4 border-green-500">
-                <h3 class="font-bold mb-4">Neues Fahrzeug anlegen</h3>
-                <div class="flex gap-4 flex-wrap items-end">
-                    <div class="flex-1">
-                        <label class="block text-xs text-gray-500 uppercase">Bezeichnung</label>
-                        <input type="text" id="newVehicleName" placeholder="z.B. KTW 1" class="border p-2 rounded w-full">
-                    </div>
-                    <div class="flex-1">
-                        <label class="block text-xs text-gray-500 uppercase">Kennzeichen</label>
-                        <input type="text" id="newVehiclePlate" placeholder="NRW 8-..." class="border p-2 rounded w-full">
-                    </div>
-                    <div class="flex-1">
-                        <label class="block text-xs text-gray-500 uppercase">Basis KM-Stand</label>
-                        <input type="number" id="newVehicleKm" value="0" class="border p-2 rounded w-full">
-                    </div>
-                    <button onclick="addNewVehicle()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-bold shadow">Hinzufügen</button>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="vehicleCardContainer"></div>
-        </div>
-    </div>
-
-    <div id="editModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden flex items-center justify-center no-print z-[60]">
-        <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg overflow-hidden">
-            <div class="bg-red-700 text-white px-4 py-3 flex justify-between items-center">
-                <h3 class="font-bold">Eintrag korrigieren</h3>
-                <button onclick="closeEditModal()"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="p-4 space-y-4">
-                <input type="hidden" id="editEntryId">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase">Start KM</label>
-                        <input type="number" id="editStartKm" class="w-full border p-2 rounded" step="0.1">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase">Ende KM</label>
-                        <input type="number" id="editEndKm" class="w-full border p-2 rounded" step="0.1">
-                    </div>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase">Fahrtzweck</label>
-                    <input type="text" id="editPurpose" class="w-full border p-2 rounded">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase">Fahrer</label>
-                    <input type="text" id="editDriver" class="w-full border p-2 rounded">
-                </div>
-                <div class="flex gap-2 justify-end pt-4 border-t">
-                    <button onclick="closeEditModal()" class="bg-gray-200 px-4 py-2 rounded">Abbrechen</button>
-                    <button onclick="saveEdit()" class="bg-red-600 text-white px-6 py-2 rounded font-bold">Änderungen speichern</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="printQrModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center no-print z-50">
-        <div class="bg-white p-8 rounded shadow-xl text-center max-w-sm w-full">
-            <h3 class="text-xl font-bold mb-4" id="modalVehicleName"></h3>
-            <div id="modalQrCode" class="flex justify-center mb-4"></div>
-            <button onclick="document.getElementById('printQrModal').classList.add('hidden')" class="bg-gray-400 text-white px-4 py-2 rounded">Schließen</button>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, set, remove, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCCZK5xpRZYnWDJsl0v2ucixLseOp_t2Kw",
-            authDomain: "drk-fahrtenbuch.firebaseapp.com",
-            databaseURL: "https://drk-fahrtenbuch-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "drk-fahrtenbuch",
-            storageBucket: "drk-fahrtenbuch.firebasestorage.app",
-            messagingSenderId: "470329025952",
-            appId: "1:470329025952:web:6f82c40e7f2e29dd6270c5"
-        };
-
-        const PASSWORD = "Dunant2026";
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        let vehicles = [];
-        let entries = [];
-        
-        // --- DATA SYNC ---
-        onValue(ref(db, 'vehicles'), (snap) => {
-            const data = snap.val();
-            if(data) {
-                vehicles = Object.values(data);
-                initSelectors();
-                renderVehicleCards();
-            }
-            updateStartKm();
-        });
-
-        onValue(ref(db, 'entries'), (snap) => {
-            const data = snap.val();
-            entries = data ? Object.entries(data).map(([key, val]) => ({ id: key, ...val })) : [];
-            entries.sort((a, b) => new Date(b.date + 'T' + b.startTime) - new Date(a.date + 'T' + a.startTime));
-            renderTable();
-            updateStartKm();
-            renderCharts();
-            document.getElementById('loader').style.display = 'none';
-        });
-
-        // --- KM LOGIC ---
-        window.updateStartKm = () => {
-            const vid = document.getElementById('vehicleSelect').value;
-            const dateVal = document.getElementById('date').value;
-            if(!vid || !dateVal) return;
-
-            const selectedDate = new Date(dateVal);
-            const startInput = document.getElementById('startKm');
-            const statusText = document.getElementById('syncStatus');
-
-            const previousEntries = entries
-                .filter(e => e.vehicleId === vid && new Date(e.date + 'T' + e.startTime) < selectedDate)
-                .sort((a, b) => new Date(b.date + 'T' + b.startTime) - new Date(a.date + 'T' + a.startTime));
-
-            if(previousEntries.length > 0) {
-                startInput.value = previousEntries[0].endKm;
-                startInput.readOnly = true;
-                startInput.className = "w-full p-1 border rounded bg-gray-200 text-gray-700 font-bold";
-                statusText.innerText = "KM automatisch übernommen";
-            } else {
-                const v = vehicles.find(veh => veh.id === vid);
-                startInput.value = v ? v.currentKm : 0;
-                startInput.readOnly = false;
-                startInput.className = "w-full p-1 border rounded bg-white text-gray-900 border-red-500";
-                statusText.innerText = "Basis-KM manuell anpassbar";
-            }
-            calcDist();
-        };
-
-        window.calcDist = () => {
-            const s = parseFloat(document.getElementById('startKm').value)||0;
-            const e = parseFloat(document.getElementById('endKm').value)||0;
-            const d = e > s ? (e-s).toFixed(1) : 0;
-            document.getElementById('distance').value = d;
-            document.getElementById('distanceDisplay').innerText = d;
-        };
-
-        // --- EDIT FUNCTIONS ---
-        window.openEditModal = (id) => {
-            if(prompt("Passwort für Korrektur:") !== PASSWORD) return;
-            const entry = entries.find(e => e.id === id);
-            if(!entry) return;
-
-            document.getElementById('editEntryId').value = entry.id;
-            document.getElementById('editStartKm').value = entry.startKm;
-            document.getElementById('editEndKm').value = entry.endKm;
-            document.getElementById('editPurpose').value = entry.purpose;
-            document.getElementById('editDriver').value = entry.driver;
-            
-            document.getElementById('editModal').classList.remove('hidden');
-        };
-
-        window.closeEditModal = () => document.getElementById('editModal').classList.add('hidden');
-
-        window.saveEdit = () => {
-            const id = document.getElementById('editEntryId').value;
-            const startKm = parseFloat(document.getElementById('editStartKm').value);
-            const endKm = parseFloat(document.getElementById('editEndKm').value);
-            const dist = (endKm - startKm).toFixed(1);
-
-            const updates = {
-                startKm: startKm,
-                endKm: endKm,
-                dist: parseFloat(dist),
-                purpose: document.getElementById('editPurpose').value,
-                driver: document.getElementById('editDriver').value
-            };
-
-            update(ref(db, 'entries/' + id), updates).then(() => {
-                alert("Eintrag wurde korrigiert!");
-                closeEditModal();
-            });
-        };
-
-        // --- ACTIONS ---
-        document.getElementById('entryForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const vid = document.getElementById('vehicleSelect').value;
-            const vObj = vehicles.find(v => v.id === vid);
-            
-            const newEntry = {
-                vehicleId: vid,
-                vehicleName: vObj.name,
-                plate: vObj.plate,
-                date: document.getElementById('date').value,
-                purpose: document.getElementById('purpose').value,
-                route: document.getElementById('route').value,
-                startTime: document.getElementById('startTime').value,
-                startKm: parseFloat(document.getElementById('startKm').value),
-                endTime: document.getElementById('endTime').value,
-                endKm: parseFloat(document.getElementById('endKm').value),
-                dist: parseFloat(document.getElementById('distance').value),
-                fuel: document.getElementById('fuel').value || "-",
-                oil: document.getElementById('oil').value || "-",
-                driver: document.getElementById('driver').value,
-                remarks: document.getElementById('remarks').value || "",
-                timestamp: Date.now()
-            };
-
-            push(ref(db, 'entries'), newEntry).then(() => {
-                const driver = document.getElementById('driver').value;
-                e.target.reset();
-                document.getElementById('date').valueAsDate = new Date();
-                document.getElementById('driver').value = driver;
-                document.getElementById('vehicleSelect').value = vid;
-                updateStartKm();
-                alert("Fahrt gespeichert!");
-            });
-        });
-
-        window.deleteEntry = (id) => {
-            if(confirm("Eintrag wirklich löschen?") && prompt("Passwort:") === PASSWORD) {
-                remove(ref(db, 'entries/' + id));
-            }
-        };
-
-        window.addNewVehicle = () => {
-            if(prompt("Passwort:") !== PASSWORD) return alert("Falsch!");
-            const name = document.getElementById('newVehicleName').value;
-            const plate = document.getElementById('newVehiclePlate').value;
-            const km = parseFloat(document.getElementById('newVehicleKm').value) || 0;
-            if(!name || !plate) return;
-            const newRef = push(ref(db, 'vehicles'));
-            set(newRef, { id: newRef.key, name, plate, currentKm: km });
-        };
-
-        window.deleteVehicle = (id) => {
-            if(confirm("KFZ löschen?") && prompt("Passwort:") === PASSWORD) remove(ref(db, 'vehicles/' + id));
-        };
-
-        // --- UI RENDERING ---
-        window.renderTable = () => {
-            const tbody = document.getElementById('logTableBody');
-            tbody.innerHTML = '';
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const filterVid = document.getElementById('filterVehicle').value;
-            const filterYear = parseInt(document.getElementById('filterYear').value);
-
-            const filtered = entries.filter(e => {
-                const matchesYear = new Date(e.date).getFullYear() === filterYear;
-                const matchesVehicle = (filterVid === 'all' || e.vehicleId === filterVid);
-                const matchesSearch = e.driver.toLowerCase().includes(search) || e.purpose.toLowerCase().includes(search);
-                return matchesYear && matchesVehicle && matchesSearch;
-            });
-
-            filtered.forEach(e => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 border-b">
-                        <td class="p-2">${new Date(e.date).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'})}</td>
-                        <td class="p-2 truncate max-w-[120px]">${e.purpose}</td>
-                        <td class="p-2 truncate max-w-[120px]">${e.route}</td>
-                        <td class="p-2">${e.startTime}</td>
-                        <td class="p-2 text-gray-400">${e.startKm}</td>
-                        <td class="p-2">${e.endTime}</td>
-                        <td class="p-2 font-bold">${e.endKm}</td>
-                        <td class="p-2 font-bold text-red-600">${e.dist}</td>
-                        <td class="p-2">${e.fuel}</td>
-                        <td class="p-2">${e.oil}</td>
-                        <td class="p-2">${e.driver}</td>
-                        <td class="p-2 text-xs italic">${e.remarks}</td>
-                        <td class="p-2 no-print space-x-2">
-                            <button onclick="openEditModal('${e.id}')" class="text-blue-400 hover:text-blue-600"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteEntry('${e.id}')" class="text-gray-300 hover:text-red-600"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>`;
-            });
-        };
-
-        window.renderVehicleCards = () => {
-            const c = document.getElementById('vehicleCardContainer'); c.innerHTML = '';
-            const url = window.location.href.split('?')[0];
-            vehicles.forEach(v => {
-                const qrid = `qr-${v.id}`;
-                c.innerHTML += `
-                    <div class="bg-white p-4 rounded shadow text-center relative">
-                        <button onclick="deleteVehicle('${v.id}')" class="absolute top-2 right-2 text-gray-200 hover:text-red-600"><i class="fa-solid fa-trash-can"></i></button>
-                        <h3 class="font-bold">${v.name}</h3>
-                        <p class="text-xs text-gray-500 mb-2">${v.plate}</p>
-                        <div id="${qrid}" class="flex justify-center mb-3"></div>
-                        <button onclick="renderModalQR('${v.id}')" class="text-xs bg-gray-100 px-3 py-1 rounded">QR Code</button>
-                    </div>`;
-                setTimeout(() => new QRCode(document.getElementById(qrid), { text: `${url}?vid=${v.id}`, width:100, height:100 }), 100);
-            });
-        };
-
-        window.renderModalQR = (vid) => {
-            const v = vehicles.find(veh => veh.id === vid);
-            document.getElementById('modalVehicleName').innerText = v.name;
-            const url = window.location.href.split('?')[0] + '?vid=' + vid;
-            document.getElementById('modalQrCode').innerHTML = "";
-            new QRCode(document.getElementById('modalQrCode'), { text: url, width: 200, height: 200 });
-            document.getElementById('printQrModal').classList.remove('hidden');
-        };
-
-        function initSelectors() {
-            const vSel = document.getElementById('vehicleSelect');
-            const fSel = document.getElementById('filterVehicle');
-            const oldV = vSel.value;
-            vSel.innerHTML = "";
-            fSel.innerHTML = '<option value="all">Alle KFZ</option>';
-            vehicles.forEach(v => {
-                const opt = `<option value="${v.id}">${v.name} (${v.plate})</option>`;
-                vSel.innerHTML += opt;
-                fSel.innerHTML += opt;
-            });
-            if(oldV) vSel.value = oldV;
-        }
-
-        window.showSection = (id) => {
-            ['logbook-section', 'stats-section', 'vehicles-section'].forEach(s => document.getElementById(s).classList.add('hidden'));
-            document.getElementById(id + '-section').classList.remove('hidden');
-        };
-
-        window.renderCharts = () => {
-            if(window.chartV) window.chartV.destroy();
-            const kmMap = {};
-            entries.forEach(e => kmMap[e.vehicleName] = (kmMap[e.vehicleName]||0) + (e.dist||0));
-            window.chartV = new Chart(document.getElementById('chartVehicles'), { 
-                type: 'doughnut', 
-                data: { labels: Object.keys(kmMap), datasets: [{ data: Object.values(kmMap), backgroundColor: ['#ef4444','#3b82f6','#10b981','#f59e0b'] }] }
-            });
-        };
-
-        window.downloadPdf = () => {
-            if(prompt("Passwort:") !== PASSWORD) return;
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('l', 'mm', 'a4');
-            const year = document.getElementById('filterYear').value;
-            const filterVid = document.getElementById('filterVehicle').value;
-            const filtered = entries.filter(e => new Date(e.date).getFullYear() == year && (filterVid === 'all' || e.vehicleId === filterVid));
-            
-            doc.text(`DRK Fahrtenbuch - Jahr ${year}`, 14, 15);
-            doc.autoTable({
-                startY: 20,
-                head: [['Datum', 'Zweck', 'Strecke', 'Start', 'Ende', 'KM Start', 'KM Ende', 'Gef.', 'Fahrer']],
-                body: filtered.reverse().map(e => [e.date, e.purpose, e.route, e.startTime, e.endTime, e.startKm, e.endKm, e.dist, e.driver]),
-                theme: 'grid', styles: { fontSize: 8 }
-            });
-            doc.save(`Fahrtenbuch_${year}.pdf`);
-        };
-
-        // Init
-        document.getElementById('date').valueAsDate = new Date();
-        const now = new Date().toTimeString().substring(0,5);
-        document.getElementById('startTime').value = now;
-        document.getElementById('endTime').value = now;
-        document.getElementById('filterYear').value = new Date().getFullYear();
-
-    </script>
-</body>
-</html>
+                                <label class="text-
