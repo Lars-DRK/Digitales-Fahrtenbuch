@@ -21,7 +21,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <style>
-        /* Hintergrund dunkler gemacht (entspricht Tailwind gray-200) */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #e5e7eb; 
@@ -483,7 +482,6 @@
             const url = window.location.href.split('?')[0];
             vehicles.forEach(v => {
                 const qrid = `qr-${v.id}`;
-                // Karten zurück auf bg-white
                 c.innerHTML += `
                     <div class="bg-white p-4 rounded shadow text-center relative">
                         <button onclick="deleteVehicle('${v.id}')" class="absolute top-2 right-2 text-gray-200 hover:text-red-600"><i class="fa-solid fa-trash-can"></i></button>
@@ -534,22 +532,43 @@
             });
         };
 
+        // --- ANGEPASSTE PDF FUNKTION ---
         window.downloadPdf = () => {
             if(prompt("Passwort:") !== PASSWORD) return;
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('l', 'mm', 'a4');
             const year = document.getElementById('filterYear').value;
             const filterVid = document.getElementById('filterVehicle').value;
+            
+            // Gefilterte Einträge
             const filtered = entries.filter(e => new Date(e.date).getFullYear() == year && (filterVid === 'all' || e.vehicleId === filterVid));
             
-            doc.text(`DRK Fahrtenbuch - Jahr ${year}`, 14, 15);
+            // Standard Überschrift und Dateiname
+            let titleText = `DRK Fahrtenbuch - Jahr ${year}`;
+            let fileName = `Fahrtenbuch_${year}.pdf`;
+            
+            // Wenn ein spezielles Fahrzeug gefiltert wurde, passe Titel und Dateiname an
+            if (filterVid !== 'all') {
+                const v = vehicles.find(veh => veh.id === filterVid);
+                if (v) {
+                    titleText += ` - ${v.name} (${v.plate})`;
+                    // Entfernt Leerzeichen im Dateinamen für bessere Kompatibilität
+                    fileName = `Fahrtenbuch_${v.name.replace(/[^a-zA-Z0-9-]/g, '_')}_${year}.pdf`;
+                }
+            }
+            
+            // Setze die Überschrift im Dokument
+            doc.text(titleText, 14, 15);
+            
             doc.autoTable({
                 startY: 20,
                 head: [['Datum', 'Zweck', 'Strecke', 'Start', 'Ende', 'KM Start', 'KM Ende', 'Gef.', 'Fahrer']],
                 body: filtered.reverse().map(e => [e.date, e.purpose, e.route, e.startTime, e.endTime, e.startKm, e.endKm, e.dist, e.driver]),
                 theme: 'grid', styles: { fontSize: 8 }
             });
-            doc.save(`Fahrtenbuch_${year}.pdf`);
+            
+            // Speichere die Datei mit dem dynamischen Namen
+            doc.save(fileName);
         };
 
         // Init
