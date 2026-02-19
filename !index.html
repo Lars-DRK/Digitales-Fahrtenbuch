@@ -232,29 +232,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="vehicleCardContainer"></div>
             
             <div class="bg-white/90 p-6 rounded shadow mt-6 backdrop-blur-sm">
-                <h3 class="font-bold mb-4">Fahrzeug bearbeiten / löschen</h3>
-                <div class="flex flex-col gap-4">
-                     <select id="editVehicleSelect" class="border p-2 rounded w-full bg-gray-50" onchange="loadVehicleData()"></select>
-                     
-                     <div class="flex gap-4 flex-wrap">
-                        <div class="flex-1 min-w-[200px]">
-                            <label class="text-xs text-gray-500 font-bold uppercase">Bezeichnung</label>
-                            <input type="text" id="editVehicleName" class="border p-2 rounded w-full">
-                        </div>
-                        <div class="flex-1 min-w-[200px]">
-                            <label class="text-xs text-gray-500 font-bold uppercase">Kennzeichen</label>
-                            <input type="text" id="editVehiclePlate" class="border p-2 rounded w-full">
-                        </div>
-                     </div>
-
-                     <div class="flex justify-between mt-2 pt-4 border-t">
-                         <button onclick="deleteVehicle()" class="bg-red-600 hover:bg-red-800 text-white px-4 py-2 rounded shadow flex items-center gap-2">
-                            <i class="fa-solid fa-trash"></i> Löschen
-                         </button>
-                         <button onclick="updateVehicleData()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow flex items-center gap-2">
-                            <i class="fa-solid fa-save"></i> Speichern
-                         </button>
-                     </div>
+                <h3 class="font-bold mb-4">Fahrzeug umbenennen</h3>
+                <div class="flex gap-4">
+                     <select id="editVehicleSelect" class="border p-2 rounded flex-1"></select>
+                     <input type="text" id="editVehicleName" placeholder="Neue Bezeichnung" class="border p-2 rounded flex-1">
+                     <button onclick="updateVehicleName()" class="bg-blue-600 text-white px-4 py-2 rounded">Speichern</button>
                 </div>
             </div>
         </div>
@@ -281,20 +263,15 @@
         // ==========================================================
         // WICHTIG: HIER DEINE FIREBASE DATEN EINFÜGEN !!!
         // ==========================================================
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyCCZK5xpRZYnWDJsl0v2ucixLseOp_t2Kw",
-  authDomain: "drk-fahrtenbuch.firebaseapp.com",
-  databaseURL: "https://drk-fahrtenbuch-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "drk-fahrtenbuch",
-  storageBucket: "drk-fahrtenbuch.firebasestorage.app",
-  messagingSenderId: "470329025952",
-  appId: "1:470329025952:web:6f82c40e7f2e29dd6270c5"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+        const firebaseConfig = {
+         apiKey: "AIzaSyCCZK5xpRZYnWDJsl0v2ucixLseOp_t2Kw",
+         authDomain: "drk-fahrtenbuch.firebaseapp.com",
+         databaseURL: "https://drk-fahrtenbuch-default-rtdb.europe-west1.firebasedatabase.app",
+         projectId: "drk-fahrtenbuch",
+         storageBucket: "drk-fahrtenbuch.firebasestorage.app",
+         messagingSenderId: "470329025952",
+         appId: "1:470329025952:web:6f82c40e7f2e29dd6270c5"
+        };
         // ==========================================================
 
         const PASSWORD = "Dunant2026";
@@ -307,7 +284,7 @@ const app = initializeApp(firebaseConfig);
         // Standard Fahrzeuge
         const defaultVehicles = [
             { id: 'v1', name: 'KTW', plate: 'NRW 8-1024', currentKm: 0 },
-            { id: 'v2', name: 'BT-LKW', plate: 'NRW 8-1352', currentKm: 0 }, // HIER GEÄNDERT auf 1352
+            { id: 'v2', name: 'BT-LKW', plate: 'NRW 8-1352', currentKm: 0 },
             { id: 'v3', name: 'BT-Kombi', plate: 'NRW 8-1169', currentKm: 0 },
             { id: 'v4', name: 'MTW', plate: 'UN-RK 2017', currentKm: 0 }
         ];
@@ -368,41 +345,20 @@ const app = initializeApp(firebaseConfig);
             });
         };
 
-        // Bearbeitungs-Daten laden wenn Select geändert wird
-        window.loadVehicleData = () => {
-            const vid = document.getElementById('editVehicleSelect').value;
-            const v = vehicles.find(x => x.id === vid);
-            if(v) {
-                document.getElementById('editVehicleName').value = v.name;
-                document.getElementById('editVehiclePlate').value = v.plate;
-            }
-        };
-
-        // Aktualisieren
-        window.updateVehicleData = () => {
-            if(prompt("Passwort:") !== PASSWORD) return alert("Falsch!");
-            const vid = document.getElementById('editVehicleSelect').value;
-            const name = document.getElementById('editVehicleName').value;
-            const plate = document.getElementById('editVehiclePlate').value;
-            
-            if(name && plate) {
-                update(ref(db, 'vehicles/' + vid), { name: name, plate: plate })
-                    .then(() => alert("Daten aktualisiert!"));
-            }
-        };
-
-        // Löschen
-        window.deleteVehicle = () => {
-            if(prompt("Passwort:") !== PASSWORD) return alert("Falsch!");
-            const vid = document.getElementById('editVehicleSelect').value;
-            if(confirm("Fahrzeug wirklich löschen? Die bisherigen Fahrten bleiben erhalten.")) {
-                remove(ref(db, 'vehicles/' + vid))
-                    .then(() => {
-                        alert("Fahrzeug gelöscht!");
-                        // Felder leeren
-                        document.getElementById('editVehicleName').value = '';
-                        document.getElementById('editVehiclePlate').value = '';
-                    });
+        // Umbenennen (Einfache Version)
+        window.updateVehicleName = () => {
+            if(prompt("Passwort:") === PASSWORD) {
+                const id = document.getElementById('editVehicleSelect').value;
+                const name = document.getElementById('editVehicleName').value;
+                if(name) {
+                    update(ref(db, 'vehicles/' + id), { name: name })
+                        .then(() => {
+                            alert("Gespeichert!");
+                            document.getElementById('editVehicleName').value = '';
+                        });
+                }
+            } else {
+                alert("Falsches Passwort!");
             }
         };
 
@@ -578,9 +534,6 @@ const app = initializeApp(firebaseConfig);
                      // Wenn kein oldVal oder Wert nicht mehr da, ersten wählen
                      // außer beim Filter (der hat 'all' als ersten)
                 }
-                
-                // Trigger change to load data for edit form
-                if(id === 'editVehicleSelect') loadVehicleData();
             });
         }
 
@@ -631,5 +584,4 @@ const app = initializeApp(firebaseConfig);
 
     </script>
 </body>
-
 </html>
