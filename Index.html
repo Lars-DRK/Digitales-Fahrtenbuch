@@ -21,10 +21,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <style>
-        /* NEUES DESIGN: Heller, flacher Hintergrund */
+        /* Hintergrund dunkler gemacht (entspricht Tailwind gray-200) */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f3f4f6; /* Helles Grau */
+            background-color: #e5e7eb; 
             position: relative;
         }
 
@@ -227,7 +227,7 @@
     <div id="editModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden flex items-center justify-center no-print z-[60]">
         <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg overflow-hidden">
             <div class="bg-red-700 text-white px-4 py-3 flex justify-between items-center">
-                <h3 class="font-bold">Eintrag korrigieren</h3>
+                <h3 class="font-bold text-white!important">Eintrag korrigieren</h3>
                 <button onclick="closeEditModal()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="p-4 space-y-4">
@@ -457,7 +457,7 @@
 
             filtered.forEach(e => {
                 tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 border-b">
+                    <tr class="hover:bg-gray-100 border-b">
                         <td class="p-2">${new Date(e.date).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'})}</td>
                         <td class="p-2 truncate max-w-[120px]">${e.purpose}</td>
                         <td class="p-2 truncate max-w-[120px]">${e.route}</td>
@@ -483,6 +483,7 @@
             const url = window.location.href.split('?')[0];
             vehicles.forEach(v => {
                 const qrid = `qr-${v.id}`;
+                // Karten zurück auf bg-white
                 c.innerHTML += `
                     <div class="bg-white p-4 rounded shadow text-center relative">
                         <button onclick="deleteVehicle('${v.id}')" class="absolute top-2 right-2 text-gray-200 hover:text-red-600"><i class="fa-solid fa-trash-can"></i></button>
