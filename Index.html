@@ -544,7 +544,7 @@
             const filtered = entries.filter(e => new Date(e.date).getFullYear() == year && (filterVid === 'all' || e.vehicleId === filterVid));
             
             // Standard Überschrift und Dateiname
-            let titleText = `DRK Fahrtenbuch - Jahr ${year}`;
+            let titleText = `Fahrtenbuch - Jahr ${year}`;
             let fileName = `Fahrtenbuch_${year}.pdf`;
             
             // Wenn ein spezielles Fahrzeug gefiltert wurde, passe Titel und Dateiname an
@@ -581,3 +581,4 @@
     </script>
 </body>
 </html>
+
